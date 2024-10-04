@@ -21,7 +21,7 @@ const SignUp = () => {
 
     // Email validation using regex for correct format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (emailRegex.test(formData.email)) {
+    if (!emailRegex.test(formData.email)) {
       return setErrorMessage("Please Enter a valid email address");
     }
     // Check password length
@@ -90,7 +90,7 @@ const SignUp = () => {
             <div>
               <Label value="Your Email" />
               <TextInput
-                type="email"
+                type="text"
                 placeholder="name@gmail.com"
                 id="email"
                 onChange={handleChange}
