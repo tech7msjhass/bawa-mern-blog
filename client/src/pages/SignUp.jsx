@@ -18,6 +18,24 @@ const SignUp = () => {
     if (!formData.username || !formData.email || !formData.password) {
       return setErrorMessage("Please fill out all Fields");
     }
+
+    // Email validation using regex for correct format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(formData.email)) {
+      return setErrorMessage("Please Enter a valid email address");
+    }
+    // Check password length
+    if (formData.password.length < 5) {
+      return setErrorMessage("Password must have 5 characters");
+    }
+    // Regular expression to check for at least one number and one special character
+    const passwordRegex = /^(?=.*\d)(?=.*[\W_]).+$/;
+    if (!passwordRegex.test(formData.password)) {
+      return setErrorMessage(
+        "Password must contain at least one number and one special character"
+      );
+    }
+
     try {
       setLoading(true);
       setErrorMessage(null);
@@ -82,7 +100,7 @@ const SignUp = () => {
               <Label value="Your Password" />
               <TextInput
                 type="password"
-                placeholder="Password"
+                placeholder="**********"
                 id="password"
                 onChange={handleChange}
               />
@@ -104,7 +122,7 @@ const SignUp = () => {
           </form>
           <div className=" flex gap-2 text-sm mt-5">
             <span>Have an Account?</span>
-            <Link to="/signin" className=" text-blue-500">
+            <Link to="/sign-in" className=" text-blue-500">
               Sign In
             </Link>
           </div>
