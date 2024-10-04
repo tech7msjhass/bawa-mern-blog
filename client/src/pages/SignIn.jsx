@@ -1,13 +1,22 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+  signInLoading,
+} from "../redux/user/userSlice";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -16,29 +25,33 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all Fields");
+      return dispatch(signInFailure("Please fill out all Fields"));
     }
 
     // Email validation using regex for correct format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      return setErrorMessage("Please Enter a valid email address");
+      return dispatch(signInFailure("Please Enter a valid email address"));
     }
     // Check password length
     if (formData.password.length < 5) {
-      return setErrorMessage("Password must have 5 characters");
+      return dispatch(signInFailure("Password must have 5 characters"));
     }
     // Regular expression to check for at least one number and one special character
     const passwordRegex = /^(?=.*\d)(?=.*[\W_]).+$/;
     if (!passwordRegex.test(formData.password)) {
-      return setErrorMessage(
-        "Password must contain at least one number and one special character"
+      return dispatch(
+        signInFailure(
+          "Password must contain at least one number and one special character"
+        )
       );
     }
 
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      // setLoading(true);          // this is using useState
+      // setErrorMessage(null);
+      dispatch(signInStart()); // this is using redux
+
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,15 +59,19 @@ const SignIn = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        // return setErrorMessage(data.message);   // this is using useState
+        dispatch(signInFailure(data.message)); // this is using redux
       }
       if (res.ok) {
+        dispatch(signInSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      setErrorMessage(error.message);
+      // setErrorMessage(error.message);             // this is using useState
+      dispatch(signInFailure(error.message)); // this is using redux
     } finally {
-      setLoading(false);
+      // setLoading(false);
+      dispatch(signInLoading());
     }
   };
 
