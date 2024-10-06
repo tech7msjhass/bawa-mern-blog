@@ -8,6 +8,7 @@ import {
   signInSuccess,
   signInLoading,
 } from "../redux/user/userSlice";
+import CryptoJS from "crypto-js";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
@@ -46,6 +47,18 @@ const SignIn = () => {
         )
       );
     }
+    // Encrypt the password using CryptoJS
+    const encryptedPassword = CryptoJS.AES.encrypt(
+      formData.password,
+      "mandeep"
+    ).toString();
+
+    const payload = {
+      email: formData.email,
+      password: encryptedPassword,
+    };
+
+    console.log(payload, "payload");
 
     try {
       // setLoading(true);          // this is using useState
@@ -55,7 +68,7 @@ const SignIn = () => {
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success === false) {

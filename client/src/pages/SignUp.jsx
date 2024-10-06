@@ -1,6 +1,7 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import CryptoJS from "crypto-js";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
@@ -35,6 +36,19 @@ const SignUp = () => {
         "Password must contain at least one number and one special character"
       );
     }
+    // Encrypt the password using CryptoJS
+    const encryptedPassword = CryptoJS.AES.encrypt(
+      formData.password,
+      "mandeep"
+    ).toString();
+
+    const payload = {
+      username: formData.username,
+      email: formData.email,
+      password: encryptedPassword,
+    };
+
+    console.log(payload, "payload");
 
     try {
       setLoading(true);
@@ -42,7 +56,7 @@ const SignUp = () => {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success === false) {

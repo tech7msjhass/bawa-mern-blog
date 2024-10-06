@@ -2,6 +2,17 @@ import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
+import CryptoJS from "crypto-js";
+
+// Secret key for encryption and decryption
+const secretKey = "mandeep";
+
+// Decrypt function
+const decryptPassword = (encryptedPassword) => {
+  const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretKey);
+  const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+  return decryptedPassword;
+};
 
 // SignUp functionality
 export const signup = async (req, res, next) => {
@@ -18,8 +29,10 @@ export const signup = async (req, res, next) => {
     next(errorHandler(400, "All Fields are Required"));
     return;
   }
+  // Decrypt password received from the client-side
+  const decryptedPassword = decryptPassword(password);
 
-  const hashedPassword = bcryptjs.hashSync(password, 10);
+  const hashedPassword = bcryptjs.hashSync(decryptedPassword, 10);
 
   const newUser = new User({
     username,
@@ -50,8 +63,15 @@ export const signin = async (req, res, next) => {
       next(errorHandler(404, "User not found"));
       return;
     }
-    const validPassword = bcryptjs.compareSync(password, validUser.password);
-    // we can use cryptojs instead of bcrypt to decode and encode.
+
+    // Decrypt password received from the client-side
+    const decryptedPassword = decryptPassword(password);
+
+    // Compare decrypted password with hashed password in the database
+    const validPassword = bcryptjs.compareSync(
+      decryptedPassword,
+      validUser.password
+    );
     if (!validPassword) {
       next(errorHandler(404, "Invalid password"));
       return;
