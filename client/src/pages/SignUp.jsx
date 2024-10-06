@@ -2,13 +2,22 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+  signInLoading,
+} from "../redux/user/userSlice";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -17,23 +26,33 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all Fields");
+      // return setErrorMessage("Please fill out all Fields");
+      return dispatch(signInFailure("Please fill out all Fields"));
     }
 
     // Email validation using regex for correct format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      return setErrorMessage("Please Enter a valid email address");
+      // return setErrorMessage("Please Enter a valid email address");
+      return dispatch(signInFailure("Please Enter a valid email address"));
     }
+
     // Check password length
     if (formData.password.length < 5) {
-      return setErrorMessage("Password must have 5 characters");
+      // return setErrorMessage("Password must have 5 characters");
+      return dispatch(signInFailure("Password must have 5 characters"));
     }
+
     // Regular expression to check for at least one number and one special character
     const passwordRegex = /^(?=.*\d)(?=.*[\W_]).+$/;
     if (!passwordRegex.test(formData.password)) {
-      return setErrorMessage(
-        "Password must contain at least one number and one special character"
+      // return setErrorMessage(
+      //   "Password must contain at least one number and one special character"
+      // );
+      return dispatch(
+        signInFailure(
+          "Password must contain at least one number and one special character"
+        )
       );
     }
     // Encrypt the password using CryptoJS
@@ -48,11 +67,11 @@ const SignUp = () => {
       password: encryptedPassword,
     };
 
-    console.log(payload, "payload");
-
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      // setLoading(true);
+      // setErrorMessage(null);
+      dispatch(signInStart());
+
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,15 +79,19 @@ const SignUp = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        // return setErrorMessage(data.message);
+        return dispatch(signInFailure(data.message));
       }
       if (res.ok) {
+        dispatch(signInSuccess(data));
         navigate("/sign-in");
       }
     } catch (error) {
-      setErrorMessage(error.message);
+      // setErrorMessage(error.message);
+      dispatch(signInFailure(error.message));
     } finally {
-      setLoading(false);
+      // setLoading(false);
+      dispatch(signInLoading());
     }
   };
 
