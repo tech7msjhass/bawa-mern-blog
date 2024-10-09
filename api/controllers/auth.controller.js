@@ -5,11 +5,14 @@ import jwt from "jsonwebtoken";
 import CryptoJS from "crypto-js";
 
 // Secret key for encryption and decryption
-const secretKey = "mandeep";
+// const secretKey = "mandeep";
 
 // Decrypt function
 const decryptPassword = (encryptedPassword) => {
-  const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretKey);
+  const bytes = CryptoJS.AES.decrypt(
+    encryptedPassword,
+    process.env.PWD_SECRET_KEY
+  );
   const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
   return decryptedPassword;
 };

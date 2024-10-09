@@ -10,6 +10,7 @@ import {
 } from "../redux/user/userSlice";
 import CryptoJS from "crypto-js";
 import OAuth from "../components/OAuth";
+import { config } from "../config/config";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
@@ -51,7 +52,7 @@ const SignIn = () => {
     // Encrypt the password using CryptoJS
     const encryptedPassword = CryptoJS.AES.encrypt(
       formData.password,
-      "mandeep"
+      config.PWD_SECRET_KEY
     ).toString();
 
     const payload = {
