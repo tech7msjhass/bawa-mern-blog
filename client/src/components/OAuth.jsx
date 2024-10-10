@@ -25,7 +25,7 @@ const OAuth = () => {
         body: JSON.stringify({
           name: resultFromGoogle.user.displayName,
           email: resultFromGoogle.user.email,
-          photoUrl: resultFromGoogle.user.photoURL,
+          googlePhotoUrl: resultFromGoogle.user.photoURL,
           // Isverified: resultFromGoogle.user.emailVerified,
           // creationTime: resultFromGoogle.user.metadata.creationTime,
           // lastSignInTime: resultFromGoogle.user.metadata.lastSignInTime,

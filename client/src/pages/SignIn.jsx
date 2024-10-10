@@ -60,8 +60,6 @@ const SignIn = () => {
       password: encryptedPassword,
     };
 
-    console.log(payload, "payload");
-
     try {
       // setLoading(true);          // this is using useState
       // setErrorMessage(null);
