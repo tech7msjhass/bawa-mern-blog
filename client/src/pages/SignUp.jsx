@@ -8,6 +8,7 @@ import {
   signInFailure,
   signInSuccess,
   signInLoading,
+  setClearError,
 } from "../redux/user/userSlice";
 import OAuth from "../components/OAuth";
 import { config } from "../config/config";
@@ -25,24 +26,33 @@ const SignUp = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
+  const clearMessage = () => {
+    setTimeout(() => {
+      dispatch(setClearError());
+    }, 5000);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.password) {
       // return setErrorMessage("Please fill out all Fields");
-      return dispatch(signInFailure("Please fill out all Fields"));
+      dispatch(signInFailure("Please fill out all Fields"));
+      return clearMessage();
     }
 
     // Email validation using regex for correct format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       // return setErrorMessage("Please Enter a valid email address");
-      return dispatch(signInFailure("Please Enter a valid email address"));
+      dispatch(signInFailure("Please Enter a valid email address"));
+      return clearMessage();
     }
 
     // Check password length
     if (formData.password.length < 5) {
       // return setErrorMessage("Password must have 5 characters");
-      return dispatch(signInFailure("Password must have 5 characters"));
+      dispatch(signInFailure("Password must have 5 characters"));
+      return clearMessage();
     }
 
     // Regular expression to check for at least one number and one special character
@@ -51,12 +61,14 @@ const SignUp = () => {
       // return setErrorMessage(
       //   "Password must contain at least one number and one special character"
       // );
-      return dispatch(
+      dispatch(
         signInFailure(
           "Password must contain at least one number and one special character"
         )
       );
+      return clearMessage();
     }
+
     // Encrypt the password using CryptoJS
     const encryptedPassword = CryptoJS.AES.encrypt(
       formData.password,
