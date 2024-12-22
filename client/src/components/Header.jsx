@@ -54,9 +54,7 @@ const Header = () => {
           <Dropdown
             arrowIcon={false}
             inline
-            label={
-              <Avatar alt="user" img={currentUser.profilePicture} rounded />
-            }
+            label={<Avatar alt="" img={currentUser.profilePicture} rounded />}
           >
             <Dropdown.Header>
               <span className=" block text-sm">{currentUser.username}</span>
