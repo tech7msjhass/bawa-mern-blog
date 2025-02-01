@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 import CryptoJS from "crypto-js";
+import fs from "fs";
 
 // Secret key for encryption and decryption
 // const secretKey = "mandeep";
@@ -139,3 +140,60 @@ export const google = async (req, res, next) => {
     next(error);
   }
 };
+
+// Ensure uploads folder exists
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+export const upload = (req, res, next) => {
+  console.log("Uploading file...");
+
+  if (!req.file) {
+    console.error("No file uploaded");
+    return next(errorHandler(400, "No file uploaded"));
+  }
+
+  // Construct the URL to the uploaded file
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
+    req.file.filename
+  }`;
+
+  console.log("File uploaded successfully:", imageUrl);
+
+  // Return the image URL to the client
+  res.status(200).json({ success: true, imageUrl });
+};
+
+// // Configure multer for file uploads
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/"); // Save files in the "uploads" folder
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname); // Unique filename
+//   },
+// });
+
+// let uploadImage = multer({ storage });
+
+// export const upload = (req, res, next) => {
+//   uploadImage.single("image")(req, res, (err) => {
+//     if (err) {
+//       return next(errorHandler(400, "File upload failed"));
+//     }
+
+//     if (!req.file) {
+//       return next(errorHandler(400, "No file is uploaded"));
+//     }
+
+//     // Construct the URL to the uploaded file
+//     const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
+//       req.file.filename
+//     }`;
+
+//     // Return the image URL to the client
+//     res.status(200).json({ imageUrl });
+//   });
+// };

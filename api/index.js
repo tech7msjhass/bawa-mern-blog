@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from "path";
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 
@@ -22,6 +23,10 @@ app.use(express.json());
 app.listen(4000, () => {
   console.log("Server is Running on port 4000");
 });
+
+// Serve static files from the "uploads" folder
+const __dirname = path.resolve(); // Get the current directory name
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
